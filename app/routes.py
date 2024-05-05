@@ -22,15 +22,6 @@ def validate_input_file(filename: str) -> bool:
     return True
 
 def create_figure(filename: str) -> 'plot':
-    # try:
-    #     csv = pd.read_csv(data_folder + filename,
-    #                       parse_dates=['date'], sep=';')
-    # except:
-    #     sleep(15)
-    #     csv = pd.read_csv(data_folder + filename,
-    #                       parse_dates=['date'], sep=';')
-    
-
     colnames=['time', 'value1', 'value2', 'value3']
     try:
         csv = pd.read_csv(data_folder + filename,  sep=';', 
@@ -45,13 +36,6 @@ def create_figure(filename: str) -> 'plot':
     color = ['red', 'blue', 'green', 'pink', 'orange']
     for i in range(1, len(csv.columns)):
         p.line(x=csv['time']-csv['time'][0], y=csv[csv.columns[i]], line_color=color[i-1], legend_label=str(csv.columns[i]))
-        # p.line(x=csv['date'], y=csv[csv.columns[i]], line_color=color[i-1], legend_label=str(csv.columns[i]))
-        # p.xaxis.formatter = DatetimeTickFormatter(
-        #     hours=["%H:%M"],
-        #     days=["%H:%M"],
-        #     months=["%H:%M"],
-        #     years=["%H:%M"],
-        # )
     p.xaxis.axis_label = 'time, ms'
     p.yaxis.axis_label = 'value'
     p.legend.location = 'bottom_right'

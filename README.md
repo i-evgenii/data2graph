@@ -1,18 +1,18 @@
 # Virtual environment
 pip install virtualenv
 cd C:\GitHub\
-mkdir Graph-prog
-cd Graph-prog
+git clone https://github.com/i-evgenii/data2graph.git
+cd data2graph
 python -m venv env
 env\Scripts\activate
 pip install -r requirements.txt
 
 # Activate
-cd C:\GitHub\Graph-prog
+cd C:\GitHub\data2graph
 env\Scripts\activate
 
 # Deactivate
-cd C:\GitHub\Graph-prog
+cd C:\GitHub\data2graph
 env\Scripts\deactivate
 
 # Start
