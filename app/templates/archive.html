@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block head %}
+
+{% endblock %}
+
+{% block body %}
+
+<h2>{{ the_title }}</h2>
+
+<form action="/">
+<select name="arch_name">
+	{% for arch in arch_names %}
+		{% if arch == current_arch_name %}
+			<option selected value="{{ arch }}">{{ arch }}</option> 
+		{% else %} 
+			<option value="{{ arch }}">{{ arch }}</option> 
+		{% endif %}
+	{% endfor %}
+</select>
+<input type="submit" value="submit">
+</form>
+
+
+{{ script|safe }}
+{{ div|safe }}
+
+{% endblock %}
