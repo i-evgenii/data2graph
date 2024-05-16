@@ -35,10 +35,11 @@ def create_figure(filename: str) -> 'plot':
     p = figure(title=plot_name, width=900, height=300)
     color = ['red', 'blue', 'green', 'pink', 'orange']
     for i in range(1, len(csv.columns)):
-        p.line(x=csv['time']-csv['time'][0], y=csv[csv.columns[i]], line_color=color[i-1], legend_label=str(csv.columns[i]))
+        p.line(x=csv['time']-csv['time'][0], y=csv[csv.columns[i]], line_color=color[i-1], legend_label=str(csv.columns[i]), muted_alpha=0.1)
     p.xaxis.axis_label = 'time, ms'
     p.yaxis.axis_label = 'value'
     p.legend.location = 'bottom_right'
+    p.legend.click_policy = 'mute'
     p.add_tools(HoverTool(tooltips= [
       ('time', '$x'),
       ('value', '$y'),
@@ -50,7 +51,7 @@ def create_figure(filename: str) -> 'plot':
 def archive_page() -> 'html':
     date_mask = datetime.date.today().strftime("%Y-%m-%d")
     global data_folder
-    data_folder = 'C:\\GitHub\\Graph-prog\\data\\'
+    data_folder = 'C:\\GitHub\\data2graph\\data\\'
     arch_names = [f for f in listdir(data_folder)]
     current_arch_name = request.args.get("arch_name")
     print('arch_name from args: ' + str(current_arch_name))
