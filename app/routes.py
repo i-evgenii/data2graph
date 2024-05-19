@@ -13,29 +13,44 @@ from app import app
 from time import sleep
 
 def validate_input_file(filename: str) -> bool:
+    i = 1
     pattern = re.compile('^[0-9]+;[0-9]+;[0-9]+;[0-9]+$')
     with open(data_folder + filename, 'r') as csv_file:
         lines = csv_file.readlines()
         for line in lines:
             if not pattern.match(line):
-                return False
-    return True
+                return False, i
+            i += 1
+    return True, 0
 
-def create_figure(filename: str) -> 'plot':
+def load_data(data_path: str, ignore_err: bool) -> 'data':
+    data = pd.DataFrame(columns=['time', 'value1', 'value2', 'value3'])
+    csv_clean = ''
     colnames=['time', 'value1', 'value2', 'value3']
     try:
-        csv = pd.read_csv(data_folder + filename,  sep=';', 
-                          names=colnames, header=None)
+        csv = pd.read_csv(data_path,  sep=';', 
+                        names=colnames, header=None)
     except:
         sleep(5)
-        csv = pd.read_csv(data_folder + filename, sep=';', 
-                          names=colnames, header=None)
-        
+        csv = pd.read_csv(data_path, sep=';', 
+                        names=colnames, header=None)
+    if ignore_err:
+        pattern = re.compile('^[0-9]+;[0-9]+;[0-9]+;[0-9]+$')
+        with open(data_path, 'r') as csv_file:
+            lines = csv_file.readlines()
+            for line in lines:
+                if pattern.match(line):
+                    data.loc[len(data.index)] = list(map(int, line.split(';')))
+    else:
+        data = csv
+    return data
+
+def create_figure(filename, data) -> 'plot':
     plot_name = filename
     p = figure(title=plot_name, width=900, height=300)
     color = ['red', 'blue', 'green', 'pink', 'orange']
-    for i in range(1, len(csv.columns)):
-        p.line(x=csv['time']-csv['time'][0], y=csv[csv.columns[i]], line_color=color[i-1], legend_label=str(csv.columns[i]), muted_alpha=0.1)
+    for i in range(1, len(data.columns)):
+        p.line(x=data['time']-data['time'][0], y=data[data.columns[i]], line_color=color[i-1], legend_label=str(data.columns[i]), muted_alpha=0.1)
     p.xaxis.axis_label = 'time, ms'
     p.yaxis.axis_label = 'value'
     p.legend.location = 'bottom_right'
@@ -61,14 +76,26 @@ def archive_page() -> 'html':
     elif current_arch_name is None:
         current_arch_name = arch_names[0]
     print('arch_name from logic: ' + str(current_arch_name))
-    if validate_input_file(current_arch_name):
-        plot = create_figure(current_arch_name)
+    checkbox_arg = request.args.get("ignore_err")
+    if checkbox_arg == 'on':
+        ignore_err_state = True
+    else:
+        ignore_err_state = False
+    data = load_data(data_folder + current_arch_name, ignore_err_state)
+    if ignore_err_state:
+        plot = create_figure(current_arch_name, data)
         script, div = components(plot)
     else:
-        validate_err_msg = '''Incorrect input file format. <br>
-        Correct file format: <br>
-        [int]time; [int]value1; [int]value2; [int]value3'''
-        script, div = validate_err_msg, ''
+        validate_res, validate_line = validate_input_file(current_arch_name)
+        if validate_res:
+            plot = create_figure(current_arch_name, data)
+            script, div = components(plot)
+        else:
+            validate_err_msg = '''Incorrect input file format. <br>
+            Correct file format: <br>
+            [int]time; [int]value1; [int]value2; [int]value3 <br>
+            Error line: ''' + str(validate_line)
+            script, div = validate_err_msg, ''
     return render_template('archive.html', the_title=current_arch_name + ' to graph',
                            script=script, div=div,
                            arch_names=arch_names,
